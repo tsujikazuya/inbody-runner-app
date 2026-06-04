@@ -109,6 +109,43 @@ p {
   color: var(--red);
 }
 
+.athlete-switcher {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdfb;
+  padding: 14px;
+}
+
+.athlete-switcher strong {
+  display: block;
+  font-size: 1.25rem;
+}
+
+.athlete-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.athlete-buttons button {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.athlete-buttons button.active {
+  border-color: var(--teal);
+  background: #e6f3ef;
+  color: var(--teal);
+}
+
 .input-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -911,6 +948,10 @@ output {
   .condition-badge {
     grid-column: 1 / -1;
     width: fit-content;
+  }
+
+  .athlete-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

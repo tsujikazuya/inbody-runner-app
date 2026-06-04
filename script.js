@@ -6,8 +6,20 @@ const mealPhotoInput = document.querySelector("#meal-photo");
 const mealTimingInput = document.querySelector("#meal-timing");
 const carbPortionInput = document.querySelector("#carb-portion");
 const foodChecks = document.querySelector("#food-checks");
+const athleteButtons = document.querySelector("#athlete-buttons");
+
+const athletes = {
+  momoko: "ももこ",
+  emi: "えみ",
+  mao: "まお",
+  kokomi: "ここみ",
+};
+
+let activeAthlete = localStorage.getItem("strideFuel.activeAthlete") || "momoko";
+let isRestoringAthlete = false;
 
 const els = {
+  activeAthlete: document.querySelector("#active-athlete"),
   riskPill: document.querySelector("#risk-pill"),
   bmi: document.querySelector("#bmi"),
   fatMass: document.querySelector("#fat-mass"),
@@ -962,6 +974,57 @@ function handleMealPhotoChange() {
   els.photoPreview.innerHTML = `<img src="${imageUrl}" alt="撮影した食事">`;
 }
 
+function athleteStorageKey(athleteId = activeAthlete) {
+  return `strideFuel.athlete.${athleteId}`;
+}
+
+function collectAthleteState() {
+  return {
+    form: Object.fromEntries(new FormData(form).entries()),
+    mealTiming: mealTimingInput.value,
+    carbPortion: carbPortionInput.value,
+    foods: selectedFoods(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function saveActiveAthlete() {
+  if (isRestoringAthlete) return;
+  localStorage.setItem(athleteStorageKey(), JSON.stringify(collectAthleteState()));
+  localStorage.setItem("strideFuel.activeAthlete", activeAthlete);
+}
+
+function restoreAthlete(athleteId) {
+  isRestoringAthlete = true;
+  activeAthlete = athletes[athleteId] ? athleteId : "momoko";
+  localStorage.setItem("strideFuel.activeAthlete", activeAthlete);
+
+  els.activeAthlete.textContent = athletes[activeAthlete];
+  athleteButtons.querySelectorAll("button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.athlete === activeAthlete);
+  });
+
+  const saved = JSON.parse(localStorage.getItem(athleteStorageKey(activeAthlete)) || "null");
+  if (saved?.form) {
+    Object.entries(saved.form).forEach(([name, value]) => {
+      const field = form.elements[name];
+      if (field) field.value = value;
+    });
+  }
+
+  mealTimingInput.value = saved?.mealTiming || "pre";
+  carbPortionInput.value = saved?.carbPortion || "ok";
+  const foods = saved?.foods || ["carb", "protein"];
+  foodChecks.querySelectorAll("input[type='checkbox']").forEach((input) => {
+    input.checked = foods.includes(input.dataset.food);
+  });
+
+  mealPhotoInput.value = "";
+  els.photoPreview.innerHTML = "<span>写真プレビュー</span>";
+  isRestoringAthlete = false;
+  render();
+}
+
 function render() {
   const weight = numberValue("weight");
   const heightM = numberValue("height") / 100;
@@ -1065,15 +1128,39 @@ function ringColor(readiness) {
   return "#2f8f5b";
 }
 
-form.addEventListener("input", render);
-form.addEventListener("change", render);
+form.addEventListener("input", () => {
+  render();
+  saveActiveAthlete();
+});
+form.addEventListener("change", () => {
+  render();
+  saveActiveAthlete();
+});
 printButton.addEventListener("click", () => window.print());
 mealPhotoInput.addEventListener("change", () => {
   handleMealPhotoChange();
   render();
+  saveActiveAthlete();
 });
-mealTimingInput.addEventListener("change", render);
-carbPortionInput.addEventListener("change", render);
-foodChecks.addEventListener("change", render);
+mealTimingInput.addEventListener("change", () => {
+  render();
+  saveActiveAthlete();
+});
+carbPortionInput.addEventListener("change", () => {
+  render();
+  saveActiveAthlete();
+});
+foodChecks.addEventListener("change", () => {
+  render();
+  saveActiveAthlete();
+});
+athleteButtons.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-athlete]");
+  if (!button || button.dataset.athlete === activeAthlete) return;
 
-render();
+  saveActiveAthlete();
+  restoreAthlete(button.dataset.athlete);
+});
+
+restoreAthlete(activeAthlete);
+saveActiveAthlete();
