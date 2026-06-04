@@ -35,6 +35,10 @@ const els = {
   mealBadge: document.querySelector("#meal-badge"),
   mealGrid: document.querySelector("#meal-grid"),
   mealNote: document.querySelector("#meal-note"),
+  nutritionTitle: document.querySelector("#nutrition-title"),
+  nutritionBadge: document.querySelector("#nutrition-badge"),
+  nutritionGrid: document.querySelector("#nutrition-grid"),
+  cheerMessage: document.querySelector("#cheer-message"),
 };
 
 const planLibrary = {
@@ -609,6 +613,117 @@ function timingAdvice(data) {
   return `午後練習は、昼食を軽くしすぎず、開始60-90分前に小さな補食を入れると安定します。${lowFuelAdvice}`;
 }
 
+function buildNutritionApproach(data, score) {
+  const highLoad = data.workoutType === "interval" || data.workoutType === "tempo" || data.workoutType === "long" || data.exerciseCalories >= 600;
+  const needsIron = data.ferritin < 35 || data.hemoglobin < 12.5;
+  const needsBone = data.vitaminD < 30 || data.bone !== "none" || data.period !== "regular";
+  const needsRecovery = data.condition.level !== "green" || data.fatigue >= 6 || data.ck > 350;
+  const bodyCompFocus = data.bodyFat >= 24 || data.muscleRatio < 43;
+
+  const cards = [
+    {
+      title: "エネルギー",
+      text: highLoad
+        ? "ポイント練習・ロング走の日は、主食を削ると出力と回復が落ちやすくなります。練習前は糖質、練習後は糖質+たんぱく質を固定します。"
+        : "軽い日も欠食は避けます。主食は量を調整しつつ、朝食と練習後の補食を残すと、過食と疲労の波を抑えやすくなります。",
+      action: highLoad ? "練習前におにぎり/バナナ、練習後におにぎり+乳製品" : "毎食に主食を小さく入れ、間食は乳製品や果物へ",
+    },
+    {
+      title: "たんぱく質",
+      text: "筋量を増やしたい時は、1回でまとめて食べるより、朝・昼・夕・練習後に分けるほうが続けやすいです。",
+      action: "毎食に卵・魚・肉・大豆製品・乳製品のどれかを入れる",
+    },
+    {
+      title: "鉄",
+      text: needsIron
+        ? "フェリチンやHbが低めです。疲労、息切れ、集中低下がある場合は、食事だけで抱え込まず専門家に確認しましょう。"
+        : "女子長距離では鉄の貯蔵を落とさないことが大切です。赤身肉、魚、大豆、小松菜などをビタミンCと合わせます。",
+      action: needsIron ? "赤身肉/魚/大豆+果物。サプリは医師・栄養士と確認" : "鉄源+果物を週の定番にする",
+    },
+    {
+      title: "骨・月経",
+      text: needsBone
+        ? "月経不規則、骨ストレス既往、ビタミンD低めは、エネルギー不足のサインと一緒に見たい項目です。減量より安全確認を優先します。"
+        : "骨を守るには、カルシウム・ビタミンD・十分なエネルギーが土台です。軽くなることより、継続して走れることを優先します。",
+      action: "乳製品/小魚/大豆製品、日光、主食を抜かない",
+    },
+    {
+      title: "回復",
+      text: needsRecovery
+        ? "疲労やCK、睡眠のサインが出ています。今日は食事制限より、回復食と睡眠で明日の練習品質を守ります。"
+        : "回復が安定している時ほど、同じ補給リズムを続けると体組成の変化も見やすくなります。",
+      action: needsRecovery ? "練習後30分以内の補食、夕食、睡眠を最優先" : "補食と睡眠の達成率を記録",
+    },
+    {
+      title: "体組成",
+      text: bodyCompFocus
+        ? "体脂肪を下げたい時も、練習前後の補給は削らない設計にします。筋量を増やす刺激と、間食・夕食の整え方で変えていきます。"
+        : "体組成が安定している時は、測定条件をそろえて4週間単位で見ます。1回の数値に振り回されないことが大切です。",
+      action: bodyCompFocus ? "補強週2回、甘い飲料・菓子・夜食の頻度を調整" : "同じ条件で測定し、練習の出力と一緒に見る",
+    },
+  ];
+
+  let level = "実行";
+  if (score.readiness < 50 || data.labs.level === "red" || data.condition.level === "red") level = "安全優先";
+  else if (needsRecovery || needsIron || needsBone) level = "重点あり";
+
+  return { cards, level };
+}
+
+function renderNutritionApproach(data, score) {
+  const approach = buildNutritionApproach(data, score);
+  els.nutritionBadge.className = "nutrition-badge";
+  els.nutritionBadge.textContent = approach.level;
+
+  if (approach.level === "安全優先") {
+    els.nutritionBadge.classList.add("danger");
+    els.nutritionTitle.textContent = "削る前に、回復と安全を整える";
+  } else if (approach.level === "重点あり") {
+    els.nutritionBadge.classList.add("warn");
+    els.nutritionTitle.textContent = "今週の栄養重点を絞る";
+  } else {
+    els.nutritionTitle.textContent = "体組成改善期の食べ方";
+  }
+
+  els.nutritionGrid.innerHTML = approach.cards
+    .map(
+      (card) => `
+        <article>
+          <h3>${card.title}</h3>
+          <p>${card.text}</p>
+          <strong>${card.action}</strong>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderCheerMessage(data, score) {
+  const messages = [];
+
+  if (score.readiness < 50 || data.condition.level === "red") {
+    messages.push("休む判断も、強くなるための大事な練習です。今日は身体の声を味方にして、次に走れる準備をしよう。");
+  } else if (data.workoutType === "interval" || data.workoutType === "tempo") {
+    messages.push("今日のポイント練習は、軽さではなく出力で勝負。食べて、走って、回復するところまでが一本の練習です。");
+  } else if (data.workoutType === "long") {
+    messages.push("長く走れる身体は、毎日の補給で作られます。最後まで粘る力を、今日の一食から育てよう。");
+  } else if (data.workoutType === "strength") {
+    messages.push("筋量はすぐには増えないけれど、積み上げた刺激はちゃんと残ります。焦らず、強い脚を作っていこう。");
+  } else {
+    messages.push("小さく整える日も、競技力の一部です。今日できる一つを丁寧に積み上げよう。");
+  }
+
+  if (data.fueling !== "steady") {
+    messages.push("完璧な食事でなくて大丈夫。まずは練習後の一口を入れるところから、流れは変えられます。");
+  }
+
+  if (data.bodyFat >= 24 && data.muscleRatio < 43) {
+    messages.push("目標はただ細くなることではなく、最後まで動く身体を作ること。あなたの身体は、整えればちゃんと応えてくれます。");
+  }
+
+  els.cheerMessage.textContent = messages.join(" ");
+}
+
 function render() {
   const weight = numberValue("weight");
   const heightM = numberValue("height") / 100;
@@ -698,6 +813,8 @@ function render() {
   renderCondition(data.condition);
   renderLabAndTraining(data);
   renderMealPlan(data, score);
+  renderNutritionApproach(data, score);
+  renderCheerMessage(data, score);
 
   fatigueOutput.textContent = String(data.fatigue);
 }

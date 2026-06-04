@@ -159,6 +159,9 @@ output {
 .plan-list article,
 .meal-section,
 .meal-grid article,
+.nutrition-section,
+.nutrition-grid article,
+.cheer-section,
 .checks-section {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -268,6 +271,8 @@ output {
 .condition-section,
 .lab-section,
 .meal-section,
+.nutrition-section,
+.cheer-section,
 .checks-section {
   margin-top: 14px;
 }
@@ -501,6 +506,84 @@ output {
   font-size: 0.9rem;
 }
 
+.nutrition-section {
+  padding: 16px;
+}
+
+.nutrition-section h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.nutrition-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #e7efea;
+  color: var(--teal);
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.nutrition-badge.warn {
+  background: #fff1d7;
+  color: var(--amber);
+}
+
+.nutrition-badge.danger {
+  background: #ffe4df;
+  color: var(--red);
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.nutrition-grid article {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  background: #fff;
+  padding: 14px;
+}
+
+.nutrition-grid h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.nutrition-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.nutrition-grid strong {
+  display: block;
+  border-left: 3px solid var(--green);
+  padding-left: 9px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.cheer-section {
+  padding: 16px;
+  background: #fffdfa;
+  border-color: #ecd9b8;
+}
+
+.cheer-section blockquote {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 900;
+  line-height: 1.65;
+}
+
 .checks-section {
   padding: 16px;
 }
@@ -554,6 +637,7 @@ output {
   .plan-list,
   .lab-grid,
   .meal-grid,
+  .nutrition-grid,
   .check-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -570,6 +654,7 @@ output {
   .plan-list,
   .lab-grid,
   .meal-grid,
+  .nutrition-grid,
   .check-grid,
   .score-card {
     grid-template-columns: 1fr;
