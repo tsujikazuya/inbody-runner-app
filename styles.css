@@ -161,6 +161,8 @@ output {
 .meal-grid article,
 .photo-section,
 .photo-result article,
+.recipe-section,
+.recipe-grid article,
 .nutrition-section,
 .nutrition-grid article,
 .cheer-section,
@@ -274,6 +276,7 @@ output {
 .lab-section,
 .meal-section,
 .photo-section,
+.recipe-section,
 .nutrition-section,
 .cheer-section,
 .checks-section {
@@ -646,6 +649,90 @@ output {
   font-size: 0.9rem;
 }
 
+.recipe-section {
+  padding: 16px;
+}
+
+.recipe-section h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.recipe-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #e8f0fb;
+  color: var(--blue);
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.recipe-badge.warn {
+  background: #fff1d7;
+  color: var(--amber);
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.recipe-grid article {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  background: #fff;
+  padding: 14px;
+}
+
+.recipe-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.recipe-topline h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.recipe-topline span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #eef4f0;
+  color: var(--teal);
+  padding: 4px 8px;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.recipe-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.recipe-grid strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.86rem;
+}
+
+.recipe-grid ul,
+.recipe-grid ol {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
 .nutrition-section {
   padding: 16px;
 }
@@ -778,6 +865,7 @@ output {
   .lab-grid,
   .meal-grid,
   .photo-layout,
+  .recipe-grid,
   .nutrition-grid,
   .check-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -805,6 +893,7 @@ output {
   .photo-controls,
   .food-checks,
   .photo-result,
+  .recipe-grid,
   .nutrition-grid,
   .check-grid,
   .score-card {

@@ -46,6 +46,9 @@ const els = {
   photoBadge: document.querySelector("#photo-badge"),
   photoPreview: document.querySelector("#photo-preview"),
   photoResult: document.querySelector("#photo-result"),
+  recipeTitle: document.querySelector("#recipe-title"),
+  recipeBadge: document.querySelector("#recipe-badge"),
+  recipeGrid: document.querySelector("#recipe-grid"),
 };
 
 const planLibrary = {
@@ -306,6 +309,98 @@ const mealLibrary = {
       },
     ],
   },
+};
+
+const recipeLibrary = {
+  highCarb: [
+    {
+      title: "鮭おにぎり + 味噌汁",
+      tag: "練習後",
+      ingredients: ["ごはん", "鮭フレークまたは焼き鮭", "のり", "豆腐とわかめの味噌汁"],
+      steps: ["ごはんに鮭を混ぜて握る", "味噌汁に豆腐とわかめを入れる", "練習後30分以内に食べる"],
+      purpose: "糖質で回復を始め、鮭と豆腐でたんぱく質を足します。",
+    },
+    {
+      title: "バナナヨーグルトトースト",
+      tag: "朝練前",
+      ingredients: ["食パン", "バナナ", "ヨーグルト", "はちみつ少量"],
+      steps: ["食パンを焼く", "バナナをのせる", "ヨーグルトとはちみつを添える"],
+      purpose: "消化しやすい糖質を入れて、朝のエネルギー切れを防ぎます。",
+    },
+  ],
+  longRun: [
+    {
+      title: "ツナ卵うどん",
+      tag: "ロング走後",
+      ingredients: ["うどん", "ツナ", "卵", "ねぎ", "めんつゆ"],
+      steps: ["うどんを温める", "ツナと卵を加える", "ねぎをのせる"],
+      purpose: "糖質、水分、塩分、たんぱく質をまとめて補えます。",
+    },
+    {
+      title: "鶏そぼろ丼",
+      tag: "前日夜",
+      ingredients: ["ごはん", "鶏ひき肉", "卵", "小松菜", "しょうゆ・みりん"],
+      steps: ["鶏ひき肉を甘辛く炒める", "炒り卵を作る", "小松菜と一緒にごはんへ盛る"],
+      purpose: "ロング走前の主食とたんぱく質を確保します。",
+    },
+  ],
+  iron: [
+    {
+      title: "赤身肉と小松菜の丼",
+      tag: "鉄",
+      ingredients: ["ごはん", "牛赤身または豚赤身", "小松菜", "卵", "オレンジまたはキウイ"],
+      steps: ["肉と小松菜を炒める", "ごはんにのせて卵を添える", "食後に果物を食べる"],
+      purpose: "鉄源とビタミンCを組み合わせ、鉄を意識した食事にします。",
+    },
+    {
+      title: "あさりと豆腐の味噌汁定食",
+      tag: "鉄・回復",
+      ingredients: ["ごはん", "あさり", "豆腐", "小松菜", "味噌"],
+      steps: ["あさりを煮る", "豆腐と小松菜を加える", "ごはんと一緒に食べる"],
+      purpose: "鉄、たんぱく質、汁物の水分を一緒に補えます。",
+    },
+  ],
+  bone: [
+    {
+      title: "しらす納豆ごはん",
+      tag: "骨・朝食",
+      ingredients: ["ごはん", "納豆", "しらす", "小ねぎ", "ヨーグルト"],
+      steps: ["納豆としらすを混ぜる", "ごはんにのせる", "ヨーグルトを添える"],
+      purpose: "カルシウムとたんぱく質を朝から入れやすい組み合わせです。",
+    },
+    {
+      title: "鮭ときのこのミルクスープ",
+      tag: "骨・夕食",
+      ingredients: ["鮭", "牛乳または豆乳", "きのこ", "玉ねぎ", "ごはん"],
+      steps: ["鮭と野菜を煮る", "牛乳または豆乳を加える", "ごはんと一緒に食べる"],
+      purpose: "たんぱく質、カルシウム、ビタミンDを意識できます。",
+    },
+  ],
+  muscle: [
+    {
+      title: "鶏むね親子丼",
+      tag: "筋量",
+      ingredients: ["ごはん", "鶏むね肉", "卵", "玉ねぎ", "めんつゆ"],
+      steps: ["鶏肉と玉ねぎを煮る", "卵でとじる", "ごはんにのせる"],
+      purpose: "主食とたんぱく質を同時に入れて、補強やポイント練習後に使えます。",
+    },
+    {
+      title: "豆腐ツナサラダごはん",
+      tag: "軽め夕食",
+      ingredients: ["ごはん", "豆腐", "ツナ", "レタス", "トマト"],
+      steps: ["豆腐とツナをのせる", "野菜を添える", "ごはんと一緒に食べる"],
+      purpose: "食欲が弱い日でも、たんぱく質と主食を外しにくい形です。",
+    },
+  ],
+  snack: [
+    {
+      title: "補食セット",
+      tag: "持ち歩き",
+      ingredients: ["おにぎり", "飲むヨーグルト", "バナナ"],
+      steps: ["練習後にすぐ食べられる場所へ入れる", "食べられない日は半量から始める", "夕食は抜かない"],
+      purpose: "作る余裕がない日でも、回復のスタートを切れます。",
+    },
+  ],
 };
 
 function numberValue(name) {
@@ -620,6 +715,66 @@ function timingAdvice(data) {
   return `午後練習は、昼食を軽くしすぎず、開始60-90分前に小さな補食を入れると安定します。${lowFuelAdvice}`;
 }
 
+function chooseRecipes(data) {
+  const selected = [];
+  const addRecipes = (recipes) => {
+    recipes.forEach((recipe) => {
+      if (!selected.some((item) => item.title === recipe.title)) selected.push(recipe);
+    });
+  };
+
+  if (data.ferritin < 35 || data.hemoglobin < 12.5) addRecipes(recipeLibrary.iron);
+  if (data.vitaminD < 30 || data.bone !== "none" || data.period !== "regular") addRecipes(recipeLibrary.bone);
+
+  if (data.workoutType === "long") addRecipes(recipeLibrary.longRun);
+  else if (data.workoutType === "interval" || data.workoutType === "tempo") addRecipes(recipeLibrary.highCarb);
+  else if (data.workoutType === "strength" || data.muscleRatio < 43) addRecipes(recipeLibrary.muscle);
+  else addRecipes(recipeLibrary.highCarb);
+
+  if (data.fueling !== "steady") addRecipes(recipeLibrary.snack);
+  if (selected.length < 3) addRecipes(recipeLibrary.muscle);
+  if (selected.length < 3) addRecipes(recipeLibrary.bone);
+
+  return selected.slice(0, 3);
+}
+
+function renderRecipes(data) {
+  const recipes = chooseRecipes(data);
+  const hasSafetyFocus = data.ferritin < 35 || data.hemoglobin < 12.5 || data.vitaminD < 30 || data.period !== "regular" || data.bone !== "none";
+
+  els.recipeBadge.className = "recipe-badge";
+  if (hasSafetyFocus) {
+    els.recipeBadge.textContent = "重点";
+    els.recipeBadge.classList.add("warn");
+    els.recipeTitle.textContent = "今の状態に合わせた3品";
+  } else {
+    els.recipeBadge.textContent = workoutLabels[data.workoutType] || "提案";
+    els.recipeTitle.textContent = "今日作りやすい3品";
+  }
+
+  els.recipeGrid.innerHTML = recipes
+    .map(
+      (recipe) => `
+        <article>
+          <div class="recipe-topline">
+            <h3>${recipe.title}</h3>
+            <span>${recipe.tag}</span>
+          </div>
+          <p>${recipe.purpose}</p>
+          <div>
+            <strong>材料</strong>
+            <ul>${recipe.ingredients.map((item) => `<li>${item}</li>`).join("")}</ul>
+          </div>
+          <div>
+            <strong>作り方</strong>
+            <ol>${recipe.steps.map((step) => `<li>${step}</li>`).join("")}</ol>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+}
+
 function buildNutritionApproach(data, score) {
   const highLoad = data.workoutType === "interval" || data.workoutType === "tempo" || data.workoutType === "long" || data.exerciseCalories >= 600;
   const needsIron = data.ferritin < 35 || data.hemoglobin < 12.5;
@@ -896,6 +1051,7 @@ function render() {
   renderCondition(data.condition);
   renderLabAndTraining(data);
   renderMealPlan(data, score);
+  renderRecipes(data);
   renderNutritionApproach(data, score);
   renderCheerMessage(data, score);
   renderPhotoNutrition(data);
