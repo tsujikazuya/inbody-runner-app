@@ -159,6 +159,8 @@ output {
 .plan-list article,
 .meal-section,
 .meal-grid article,
+.photo-section,
+.photo-result article,
 .nutrition-section,
 .nutrition-grid article,
 .cheer-section,
@@ -271,6 +273,7 @@ output {
 .condition-section,
 .lab-section,
 .meal-section,
+.photo-section,
 .nutrition-section,
 .cheer-section,
 .checks-section {
@@ -506,6 +509,143 @@ output {
   font-size: 0.9rem;
 }
 
+.photo-section {
+  padding: 16px;
+}
+
+.photo-section h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.photo-badge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #e7efea;
+  color: var(--teal);
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.photo-badge.warn {
+  background: #fff1d7;
+  color: var(--amber);
+}
+
+.photo-layout {
+  display: grid;
+  grid-template-columns: 170px minmax(160px, 230px) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+  align-items: stretch;
+}
+
+.photo-uploader {
+  display: grid;
+  place-items: center;
+  min-height: 142px;
+  border: 1px dashed var(--teal);
+  border-radius: 8px;
+  background: #f5fbf8;
+  color: var(--teal);
+  cursor: pointer;
+  text-align: center;
+}
+
+.photo-uploader input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.photo-uploader span {
+  padding: 0 12px;
+  font-weight: 900;
+}
+
+.photo-preview {
+  display: grid;
+  place-items: center;
+  min-height: 142px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--muted);
+  overflow: hidden;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.photo-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+
+.food-checks {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.food-checks label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px;
+  color: var(--ink);
+}
+
+.food-checks input {
+  width: 16px;
+  min-height: 16px;
+  accent-color: var(--green);
+}
+
+.photo-result {
+  display: grid;
+  grid-template-columns: 0.72fr 1.28fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.photo-result article {
+  background: #fff;
+  padding: 14px;
+}
+
+.photo-result span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.photo-result strong {
+  display: block;
+  margin: 6px 0;
+  font-size: 1.35rem;
+}
+
+.photo-result p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .nutrition-section {
   padding: 16px;
 }
@@ -637,8 +777,15 @@ output {
   .plan-list,
   .lab-grid,
   .meal-grid,
+  .photo-layout,
   .nutrition-grid,
   .check-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .photo-controls,
+  .food-checks,
+  .photo-result {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -654,6 +801,10 @@ output {
   .plan-list,
   .lab-grid,
   .meal-grid,
+  .photo-layout,
+  .photo-controls,
+  .food-checks,
+  .photo-result,
   .nutrition-grid,
   .check-grid,
   .score-card {

@@ -285,6 +285,56 @@
           <p id="meal-note" class="meal-note"></p>
         </section>
 
+        <section class="photo-section" aria-label="食事写真で栄養管理">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">食事写真</p>
+              <h2>スマホで撮って栄養チェック</h2>
+            </div>
+            <span class="photo-badge" id="photo-badge">未記録</span>
+          </div>
+          <div class="photo-layout">
+            <label class="photo-uploader">
+              <input id="meal-photo" type="file" accept="image/*" capture="environment">
+              <span>食事を撮影・選択</span>
+            </label>
+            <div class="photo-preview" id="photo-preview">
+              <span>写真プレビュー</span>
+            </div>
+            <div class="photo-controls">
+              <label>
+                食事タイミング
+                <select id="meal-timing">
+                  <option value="pre">練習前</option>
+                  <option value="post">練習後</option>
+                  <option value="breakfast">朝食</option>
+                  <option value="lunch">昼食</option>
+                  <option value="dinner">夕食</option>
+                  <option value="snack">補食</option>
+                </select>
+              </label>
+              <label>
+                主食の量
+                <select id="carb-portion">
+                  <option value="none">なし</option>
+                  <option value="small">少なめ</option>
+                  <option value="ok" selected>適量</option>
+                  <option value="large">多め</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="food-checks" id="food-checks">
+            <label><input type="checkbox" data-food="carb" checked> 主食</label>
+            <label><input type="checkbox" data-food="protein" checked> 主菜/たんぱく質</label>
+            <label><input type="checkbox" data-food="veg"> 野菜</label>
+            <label><input type="checkbox" data-food="dairy"> 乳製品/カルシウム</label>
+            <label><input type="checkbox" data-food="fruit"> 果物</label>
+            <label><input type="checkbox" data-food="iron"> 鉄源</label>
+          </div>
+          <div class="photo-result" id="photo-result"></div>
+        </section>
+
         <section class="nutrition-section" aria-label="栄養アプローチ">
           <div class="section-heading">
             <div>

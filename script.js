@@ -2,6 +2,10 @@ const form = document.querySelector("#athlete-form");
 const fatigueInput = form.elements.fatigue;
 const fatigueOutput = document.querySelector("#fatigue-output");
 const printButton = document.querySelector("#print-button");
+const mealPhotoInput = document.querySelector("#meal-photo");
+const mealTimingInput = document.querySelector("#meal-timing");
+const carbPortionInput = document.querySelector("#carb-portion");
+const foodChecks = document.querySelector("#food-checks");
 
 const els = {
   riskPill: document.querySelector("#risk-pill"),
@@ -39,6 +43,9 @@ const els = {
   nutritionBadge: document.querySelector("#nutrition-badge"),
   nutritionGrid: document.querySelector("#nutrition-grid"),
   cheerMessage: document.querySelector("#cheer-message"),
+  photoBadge: document.querySelector("#photo-badge"),
+  photoPreview: document.querySelector("#photo-preview"),
+  photoResult: document.querySelector("#photo-result"),
 };
 
 const planLibrary = {
@@ -724,6 +731,82 @@ function renderCheerMessage(data, score) {
   els.cheerMessage.textContent = messages.join(" ");
 }
 
+function selectedFoods() {
+  return Array.from(foodChecks.querySelectorAll("input[type='checkbox']"))
+    .filter((input) => input.checked)
+    .map((input) => input.dataset.food);
+}
+
+function renderPhotoNutrition(data) {
+  const foods = selectedFoods();
+  const timing = mealTimingInput.value;
+  const carbPortion = carbPortionInput.value;
+  const missing = [];
+  const advice = [];
+
+  if (!foods.includes("carb")) missing.push("主食");
+  if (!foods.includes("protein")) missing.push("たんぱく質");
+  if (!foods.includes("veg")) missing.push("野菜");
+  if (!foods.includes("dairy")) missing.push("カルシウム源");
+  if ((data.ferritin < 35 || data.hemoglobin < 12.5) && !foods.includes("iron")) missing.push("鉄源");
+  if ((timing === "pre" || timing === "post") && carbPortion === "none") missing.push("練習前後の糖質");
+
+  if (timing === "pre") {
+    advice.push(data.workoutIntensity === "hard" || data.workoutType === "interval"
+      ? "高強度前は、消化の軽い糖質を入れると出力を守りやすいです。"
+      : "練習前は空腹を避け、水分と小さな糖質を入れると安定します。");
+  } else if (timing === "post") {
+    advice.push("練習後は糖質+たんぱく質をセットにして、夕食まで空く場合は補食を追加しましょう。");
+  } else if (timing === "snack") {
+    advice.push("補食は、おにぎり・果物・乳製品など、練習に使えるエネルギーに寄せると回復につながります。");
+  } else {
+    advice.push("食事全体では、主食・主菜・野菜をそろえ、体組成改善期でも練習前後の補給を削らないことが軸です。");
+  }
+
+  if (data.period !== "regular" || data.bone !== "none" || data.vitaminD < 30) {
+    advice.push("月経・骨・ビタミンDのサインがある時は、乳製品や小魚、大豆製品、主食を抜かない食事を優先してください。");
+  }
+
+  if (data.fueling !== "steady") {
+    advice.push("補食が安定しない時は、写真記録を使って「練習後に一口入れたか」から見ていきましょう。");
+  }
+
+  const score = clamp(100 - missing.length * 14 - (carbPortion === "none" ? 10 : 0), 0, 100);
+  els.photoBadge.className = "photo-badge";
+
+  if (score < 65) {
+    els.photoBadge.textContent = "要追加";
+    els.photoBadge.classList.add("warn");
+  } else if (mealPhotoInput.files.length) {
+    els.photoBadge.textContent = "記録済み";
+  } else {
+    els.photoBadge.textContent = "未記録";
+  }
+
+  els.photoResult.innerHTML = `
+    <article>
+      <span>写真チェック</span>
+      <strong>${Math.round(score)}点</strong>
+      <p>${missing.length ? `追加候補: ${missing.join("・")}` : "主な要素はそろっています。"}</p>
+    </article>
+    <article>
+      <span>アドバイス</span>
+      <p>${advice.join(" ")}</p>
+    </article>
+  `;
+}
+
+function handleMealPhotoChange() {
+  const file = mealPhotoInput.files[0];
+  if (!file) {
+    els.photoPreview.innerHTML = "<span>写真プレビュー</span>";
+    return;
+  }
+
+  const imageUrl = URL.createObjectURL(file);
+  els.photoPreview.innerHTML = `<img src="${imageUrl}" alt="撮影した食事">`;
+}
+
 function render() {
   const weight = numberValue("weight");
   const heightM = numberValue("height") / 100;
@@ -815,6 +898,7 @@ function render() {
   renderMealPlan(data, score);
   renderNutritionApproach(data, score);
   renderCheerMessage(data, score);
+  renderPhotoNutrition(data);
 
   fatigueOutput.textContent = String(data.fatigue);
 }
@@ -828,5 +912,12 @@ function ringColor(readiness) {
 form.addEventListener("input", render);
 form.addEventListener("change", render);
 printButton.addEventListener("click", () => window.print());
+mealPhotoInput.addEventListener("change", () => {
+  handleMealPhotoChange();
+  render();
+});
+mealTimingInput.addEventListener("change", render);
+carbPortionInput.addEventListener("change", render);
+foodChecks.addEventListener("change", render);
 
 render();
