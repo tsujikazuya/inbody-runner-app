@@ -222,6 +222,57 @@
           </article>
         </div>
 
+        <section class="measurement-section" aria-label="測定記録">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">測定リズム</p>
+              <h2>体重は毎日、InBodyは月1回</h2>
+            </div>
+            <span class="measurement-badge" id="measurement-badge">記録</span>
+          </div>
+          <div class="measurement-grid">
+            <article>
+              <h3>毎日の体重</h3>
+              <div class="measurement-inputs">
+                <label>
+                  日付
+                  <input id="daily-weight-date" type="date">
+                </label>
+                <label>
+                  体重 kg
+                  <input id="daily-weight-value" type="number" min="30" max="90" step="0.1">
+                </label>
+              </div>
+              <button id="save-daily-weight" type="button">体重を記録</button>
+              <div id="daily-weight-log" class="measurement-log"></div>
+            </article>
+            <article>
+              <h3>月1回のInBody</h3>
+              <div class="measurement-inputs">
+                <label>
+                  測定日
+                  <input id="inbody-date" type="date">
+                </label>
+                <label>
+                  体脂肪率 %
+                  <input id="inbody-fat" type="number" min="5" max="45" step="0.1">
+                </label>
+                <label>
+                  骨格筋量 kg
+                  <input id="inbody-muscle" type="number" min="12" max="45" step="0.1">
+                </label>
+                <label>
+                  点数
+                  <input id="inbody-score-log" type="number" min="40" max="100">
+                </label>
+              </div>
+              <button id="save-inbody-log" type="button">InBodyを記録</button>
+              <div id="inbody-log" class="measurement-log"></div>
+            </article>
+          </div>
+          <p class="measurement-note" id="measurement-note"></p>
+        </section>
+
         <div class="analysis-layout">
           <article class="score-card">
             <div class="score-ring" id="score-ring">

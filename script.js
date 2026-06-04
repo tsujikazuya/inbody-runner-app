@@ -7,6 +7,14 @@ const mealTimingInput = document.querySelector("#meal-timing");
 const carbPortionInput = document.querySelector("#carb-portion");
 const foodChecks = document.querySelector("#food-checks");
 const athleteButtons = document.querySelector("#athlete-buttons");
+const dailyWeightDateInput = document.querySelector("#daily-weight-date");
+const dailyWeightValueInput = document.querySelector("#daily-weight-value");
+const saveDailyWeightButton = document.querySelector("#save-daily-weight");
+const inbodyDateInput = document.querySelector("#inbody-date");
+const inbodyFatInput = document.querySelector("#inbody-fat");
+const inbodyMuscleInput = document.querySelector("#inbody-muscle");
+const inbodyScoreLogInput = document.querySelector("#inbody-score-log");
+const saveInbodyLogButton = document.querySelector("#save-inbody-log");
 
 const athletes = {
   momoko: "ももこ",
@@ -18,6 +26,10 @@ const athletes = {
 let activeAthlete = localStorage.getItem("strideFuel.activeAthlete") || "momoko";
 let isRestoringAthlete = false;
 
+function todayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 const els = {
   activeAthlete: document.querySelector("#active-athlete"),
   riskPill: document.querySelector("#risk-pill"),
@@ -27,6 +39,10 @@ const els = {
   muscleRatio: document.querySelector("#muscle-ratio"),
   trainingLoad: document.querySelector("#training-load"),
   caloriesPerMin: document.querySelector("#calories-per-min"),
+  measurementBadge: document.querySelector("#measurement-badge"),
+  dailyWeightLog: document.querySelector("#daily-weight-log"),
+  inbodyLog: document.querySelector("#inbody-log"),
+  measurementNote: document.querySelector("#measurement-note"),
   scoreRing: document.querySelector("#score-ring"),
   readinessScore: document.querySelector("#readiness-score"),
   mainMessage: document.querySelector("#main-message"),
@@ -979,13 +995,19 @@ function athleteStorageKey(athleteId = activeAthlete) {
 }
 
 function collectAthleteState() {
+  const current = readAthleteState();
   return {
+    ...current,
     form: Object.fromEntries(new FormData(form).entries()),
     mealTiming: mealTimingInput.value,
     carbPortion: carbPortionInput.value,
     foods: selectedFoods(),
     updatedAt: new Date().toISOString(),
   };
+}
+
+function readAthleteState(athleteId = activeAthlete) {
+  return JSON.parse(localStorage.getItem(athleteStorageKey(athleteId)) || "{}");
 }
 
 function saveActiveAthlete() {
@@ -1021,8 +1043,89 @@ function restoreAthlete(athleteId) {
 
   mealPhotoInput.value = "";
   els.photoPreview.innerHTML = "<span>写真プレビュー</span>";
+  dailyWeightDateInput.value = todayString();
+  dailyWeightValueInput.value = form.elements.weight.value;
+  inbodyDateInput.value = todayString();
+  inbodyFatInput.value = form.elements.bodyFat.value;
+  inbodyMuscleInput.value = form.elements.muscle.value;
+  inbodyScoreLogInput.value = form.elements.inbodyScore.value;
   isRestoringAthlete = false;
   render();
+}
+
+function upsertLogEntry(entries, entry) {
+  const next = entries.filter((item) => item.date !== entry.date);
+  next.push(entry);
+  return next.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function saveDailyWeightLog() {
+  const date = dailyWeightDateInput.value || todayString();
+  const weight = Number.parseFloat(dailyWeightValueInput.value || form.elements.weight.value);
+  if (!Number.isFinite(weight)) return;
+
+  const current = collectAthleteState();
+  current.dailyWeights = upsertLogEntry(current.dailyWeights || [], { date, weight });
+  current.form.weight = String(weight);
+  form.elements.weight.value = String(weight);
+  localStorage.setItem(athleteStorageKey(), JSON.stringify(current));
+  render();
+}
+
+function saveInbodyLog() {
+  const date = inbodyDateInput.value || todayString();
+  const bodyFat = Number.parseFloat(inbodyFatInput.value || form.elements.bodyFat.value);
+  const muscle = Number.parseFloat(inbodyMuscleInput.value || form.elements.muscle.value);
+  const score = Number.parseFloat(inbodyScoreLogInput.value || form.elements.inbodyScore.value);
+  if (![bodyFat, muscle, score].every(Number.isFinite)) return;
+
+  const current = collectAthleteState();
+  current.inbodyLogs = upsertLogEntry(current.inbodyLogs || [], { date, bodyFat, muscle, score });
+  current.form.bodyFat = String(bodyFat);
+  current.form.muscle = String(muscle);
+  current.form.inbodyScore = String(score);
+  form.elements.bodyFat.value = String(bodyFat);
+  form.elements.muscle.value = String(muscle);
+  form.elements.inbodyScore.value = String(score);
+  localStorage.setItem(athleteStorageKey(), JSON.stringify(current));
+  render();
+}
+
+function renderMeasurementLogs() {
+  const current = readAthleteState();
+  const dailyWeights = current.dailyWeights || [];
+  const inbodyLogs = current.inbodyLogs || [];
+  const latestWeight = dailyWeights[0];
+  const latestInbody = inbodyLogs[0];
+  const daysSinceInbody = latestInbody
+    ? Math.floor((new Date(todayString()) - new Date(latestInbody.date)) / 86400000)
+    : null;
+
+  els.dailyWeightLog.innerHTML = dailyWeights.length
+    ? dailyWeights.slice(0, 5).map((item) => `<div><span>${item.date}</span><strong>${Number(item.weight).toFixed(1)}kg</strong></div>`).join("")
+    : "<p>まだ体重記録がありません。</p>";
+
+  els.inbodyLog.innerHTML = inbodyLogs.length
+    ? inbodyLogs.slice(0, 5).map((item) => `<div><span>${item.date}</span><strong>${Number(item.bodyFat).toFixed(1)}% / ${Number(item.muscle).toFixed(1)}kg</strong></div>`).join("")
+    : "<p>まだInBody記録がありません。</p>";
+
+  if (latestWeight) {
+    dailyWeightValueInput.value = Number(latestWeight.weight).toFixed(1);
+  }
+
+  els.measurementBadge.className = "measurement-badge";
+  if (daysSinceInbody === null) {
+    els.measurementBadge.textContent = "InBody未記録";
+    els.measurementBadge.classList.add("warn");
+    els.measurementNote.textContent = "体重は毎日、InBodyは月1回のペースで記録します。まず初回のInBody測定日を入れましょう。";
+  } else if (daysSinceInbody >= 35) {
+    els.measurementBadge.textContent = "InBody更新";
+    els.measurementBadge.classList.add("warn");
+    els.measurementNote.textContent = `前回InBodyから${daysSinceInbody}日です。次の月1回測定を入れるタイミングです。`;
+  } else {
+    els.measurementBadge.textContent = "記録中";
+    els.measurementNote.textContent = `直近InBodyは${latestInbody.date}です。体重は日々の変動、InBodyは月単位の変化として見ます。`;
+  }
 }
 
 function render() {
@@ -1078,6 +1181,7 @@ function render() {
   const caloriesPerMin = data.duration > 0 ? data.exerciseCalories / data.duration : 0;
   els.trainingLoad.textContent = String(trainingLoad);
   els.caloriesPerMin.textContent = `${caloriesPerMin.toFixed(1)}`;
+  renderMeasurementLogs();
 
   els.fatBar.style.width = pct((bodyFat / 35) * 100);
   els.muscleBar.style.width = pct((data.muscleRatio / 50) * 100);
@@ -1154,6 +1258,8 @@ foodChecks.addEventListener("change", () => {
   render();
   saveActiveAthlete();
 });
+saveDailyWeightButton.addEventListener("click", saveDailyWeightLog);
+saveInbodyLogButton.addEventListener("click", saveInbodyLog);
 athleteButtons.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-athlete]");
   if (!button || button.dataset.athlete === activeAthlete) return;
